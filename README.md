@@ -1,4 +1,4 @@
-# ESCOPO DO PROJETO — PetCare+
+# PetCare+
 📌 **1. Visão Geral**
 
 O PetCare+ é um sistema web voltado para tutores de animais que desejam organizar e acompanhar a saúde, cuidados e informações dos seus pets. O sistema permite criar contas pessoais, cadastrar vários pets, acompanhar vacinas, histórico de saúde e lembretes, tudo em uma interface simples e intuitiva.
