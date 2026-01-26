@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <title>PetCare+ | Vacinas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: linear-gradient(135deg, #e0f2fe, #f0fdf4);
+      min-height: 100vh;
+    }
+
+    /* HEADER */
+    .header {
+      background: white;
+      height: 70px;
+      padding: 0 25px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .header h1 {
+      font-size: 20px;
+      color: #0f766e;
+      margin: 0;
+    }
+
+    .header a {
+      text-decoration: none;
+      color: #0f766e;
+      font-weight: 600;
+    }
+
+    /* CONTAINER */
+    .container {
+      max-width: 900px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    /* CARD */
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 25px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    }
+
+    .card h2 {
+      margin-top: 0;
+      color: #065f46;
+      font-size: 18px;
+      margin-bottom: 15px;
+    }
+
+    /* FORM */
+    .form-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    .form-group.full {
+      grid-template-columns: 1fr;
+    }
+
+    label {
+      font-size: 14px;
+      color: #374151;
+      margin-bottom: 5px;
+      display: block;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #d1d5db;
+      font-size: 14px;
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      background: #0f766e;
+      color: white;
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #115e59;
+    }
+
+    /* LISTA */
+    .item {
+      border-left: 4px solid #0f766e;
+      padding: 10px 15px;
+      margin-bottom: 10px;
+      background: #f9fafb;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .item strong {
+      color: #064e3b;
+    }
+
+    .item span {
+      display: block;
+      font-size: 13px;
+      color: #6b7280;
+    }
+
+    .item button {
+      background: #fca5a5;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="header">
+    <h1>Vacinas</h1>
+    <a href="dashboard.html">⬅ Voltar</a>
+  </header>
+
+  <main class="container">
+
+    <!-- CADASTRO -->
+    <div class="card">
+      <h2>Cadastrar Vacina</h2>
+
+      <div class="form-group">
+        <div>
+          <label>Pet</label>
+          <select id="pet"></select>
+        </div>
+
+        <div>
+          <label>Nome da vacina</label>
+          <input id="name">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div>
+          <label>Data</label>
+          <input id="date" type="date">
+        </div>
+
+        <div>
+          <label>Horário</label>
+          <input id="time" type="time">
+        </div>
+      </div>
+
+      <button onclick="addVaccine()">Salvar Vacina</button>
+    </div>
+
+    <!-- LISTA -->
+    <div class="card">
+      <h2>Vacinas Registradas</h2>
+      <div id="list"></div>
+    </div>
+
+  </main>
+
+  <script src="js/global.js"></script>
+  <script>
+    checkAuth();
+
+    let pets = [];
+    let vaccines = [];
+
+    const petSelect = document.getElementById("pet");
+    const list = document.getElementById("list");
+    const nameInput = document.getElementById("name");
+    const dateInput = document.getElementById("date");
+    const timeInput = document.getElementById("time");
+
+    async function loadData() {
+      pets = await apiFetch("/pets");
+      vaccines = await apiFetch("/vaccines");
+
+      // Update select
+      petSelect.innerHTML = '<option value="">Selecione um pet</option>';
+      pets.forEach(p => {
+        petSelect.innerHTML += `<option value="${p.id}">${p.name}</option>`;
+      });
+
+      render();
+    }
+
+    async function addVaccine() {
+      if (!petSelect.value || !nameInput.value || !dateInput.value || !timeInput.value) {
+        alert("Preencha todos os campos");
+        return;
+      }
+
+      const newVaccine = await apiFetch("/vaccines", "POST", {
+        pet_id: parseInt(petSelect.value),
+        name: nameInput.value,
+        date: dateInput.value,
+        time: timeInput.value
+      });
+
+      if (newVaccine) {
+        nameInput.value = dateInput.value = timeInput.value = "";
+        loadData();
+      }
+    }
+
+    function render() {
+      list.innerHTML = "";
+      if (!vaccines) return;
+      vaccines.forEach(v => {
+        const pet = pets.find(p => p.id == v.pet_id);
+        list.innerHTML += `
+      <div class="item">
+        <div>
+          <strong>${v.name}</strong>
+          <span>${pet ? pet.name : "Pet"} • ${v.date} às ${v.time}</span>
+        </div>
+        <button onclick="removeVaccine(${v.id})">🗑</button>
+      </div>
+    `;
+      });
+    }
+
+    async function removeVaccine(id) {
+      if (!confirm("Excluir esta vacina?")) return;
+      await apiFetch(`/vaccines/${id}`, "DELETE");
+      loadData();
+    }
+
+    loadData();
+  </script>
+
+</body>
+
+</html>

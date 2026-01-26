@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <title>PetCare+ | Agenda & Lembretes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: linear-gradient(135deg, #e0f2fe, #f0fdf4);
+      min-height: 100vh;
+    }
+
+    /* HEADER */
+    .header {
+      height: 70px;
+      background: #ffffff;
+      padding: 0 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 20px;
+      color: #0f766e;
+    }
+
+    .header a {
+      text-decoration: none;
+      color: #0f766e;
+      font-weight: 600;
+    }
+
+    /* CONTAINER */
+    .container {
+      max-width: 900px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 18px;
+      padding: 20px;
+      margin-bottom: 25px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    }
+
+    .card h2 {
+      margin-top: 0;
+      color: #065f46;
+      font-size: 18px;
+      margin-bottom: 15px;
+    }
+
+    /* FORM */
+    .form-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    .form-group.full {
+      grid-template-columns: 1fr;
+    }
+
+    label {
+      font-size: 14px;
+      color: #374151;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #d1d5db;
+      font-size: 14px;
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      background: #0f766e;
+      color: white;
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #115e59;
+    }
+
+    /* LISTA */
+    .lembrete {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f9fafb;
+      border-left: 5px solid #0f766e;
+      padding: 12px 15px;
+      border-radius: 12px;
+      margin-bottom: 12px;
+    }
+
+    .lembrete strong {
+      color: #064e3b;
+    }
+
+    .lembrete span {
+      display: block;
+      font-size: 13px;
+      color: #6b7280;
+    }
+
+    .tag {
+      background: #ccfbf1;
+      color: #065f46;
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="header">
+    <h1>Agenda & Lembretes</h1>
+    <a href="dashboard.html">⬅ Voltar</a>
+  </header>
+
+  <main class="container">
+
+    <!-- CADASTRAR LEMBRETE -->
+    <div class="card">
+      <h2>Novo Lembrete</h2>
+
+      <div class="form-group">
+        <div>
+          <label>Pet</label>
+          <select id="petSelect"></select>
+        </div>
+        <div>
+          <label>Tipo</label>
+          <select id="type">
+            <option>Vacinação</option>
+            <option>Banho / Tosa</option>
+            <option>Medicamento</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div>
+          <label>Data</label>
+          <input type="date" id="date">
+        </div>
+        <div>
+          <label>Horário</label>
+          <input type="time" id="time">
+        </div>
+      </div>
+
+      <div class="form-group full">
+        <div>
+          <label>Repetição (medicação)</label>
+          <select id="repetition">
+            <option>Não repetir</option>
+            <option>Todos os dias</option>
+            <option>A cada 7 dias</option>
+            <option>A cada 30 dias</option>
+          </select>
+        </div>
+      </div>
+
+      <button onclick="addAppointment()">Salvar Lembrete</button>
+    </div>
+
+    <!-- LISTA DE LEMBRETES -->
+    <div class="card">
+      <h2>Próximos Lembretes</h2>
+      <div id="appointmentList"></div>
+    </div>
+
+  </main>
+
+  <script src="js/global.js"></script>
+  <script>
+    checkAuth();
+
+    let pets = [];
+    let appointments = [];
+
+    const petSelect = document.getElementById("petSelect");
+    const appointmentList = document.getElementById("appointmentList");
+    const typeInput = document.getElementById("type");
+    const dateInput = document.getElementById("date");
+    const timeInput = document.getElementById("time");
+    const repetitionInput = document.getElementById("repetition");
+
+    async function loadData() {
+      pets = await apiFetch("/pets");
+      appointments = await apiFetch("/appointments");
+
+      petSelect.innerHTML = '<option value="">Selecione um pet</option>';
+      pets.forEach(p => {
+        petSelect.innerHTML += `<option value="${p.id}">${p.name}</option>`;
+      });
+
+      render();
+    }
+
+    async function addAppointment() {
+      if (!petSelect.value || !dateInput.value || !timeInput.value) {
+        alert("Preencha os campos obrigatórios");
+        return;
+      }
+
+      const newApp = await apiFetch("/appointments", "POST", {
+        pet_id: parseInt(petSelect.value),
+        type: typeInput.value,
+        date: dateInput.value,
+        time: timeInput.value,
+        repetition: repetitionInput.value
+      });
+
+      if (newApp) {
+        dateInput.value = timeInput.value = "";
+        loadData();
+      }
+    }
+
+    function render() {
+      appointmentList.innerHTML = "";
+      if (!appointments || appointments.length === 0) {
+        appointmentList.innerHTML = "<p>Nenhum lembrete agendado.</p>";
+        return;
+      }
+
+      appointments.forEach(a => {
+        const pet = pets.find(p => p.id == a.pet_id);
+        appointmentList.innerHTML += `
+                <div class="lembrete">
+                    <div>
+                        <strong>${a.type} - ${pet ? pet.name : 'Pet'}</strong>
+                        <span>📅 ${a.date} • ⏰ ${a.time}</span>
+                        <small>${a.repetition !== 'Não repetir' ? '🔁 ' + a.repetition : ''}</small>
+                    </div>
+                    <span class="tag">${a.type}</span>
+                </div>
+            `;
+      });
+    }
+
+    loadData();
+  </script>
+</body>
+
+</html>

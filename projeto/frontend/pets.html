@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <title>PetCare+ | Meus Pets</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: linear-gradient(135deg, #e0f2fe, #f0fdf4);
+      min-height: 100vh;
+    }
+
+    /* HEADER */
+    .header {
+      background: white;
+      height: 70px;
+      padding: 0 25px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .header h1 {
+      font-size: 20px;
+      color: #0f766e;
+      margin: 0;
+    }
+
+    .header a {
+      text-decoration: none;
+      color: #0f766e;
+      font-weight: 600;
+    }
+
+    /* CONTAINER */
+    .container {
+      max-width: 900px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    /* CARD */
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 25px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    }
+
+    .card h2 {
+      margin-top: 0;
+      color: #065f46;
+      font-size: 18px;
+      margin-bottom: 15px;
+    }
+
+    /* FORM */
+    .form-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    .form-group.full {
+      grid-template-columns: 1fr;
+    }
+
+    label {
+      font-size: 14px;
+      color: #374151;
+      margin-bottom: 5px;
+      display: block;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #d1d5db;
+      font-size: 14px;
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      background: #0f766e;
+      color: white;
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #115e59;
+    }
+
+    /* PET ITEM */
+    .pet {
+      border-left: 4px solid #0f766e;
+      padding: 12px 15px;
+      margin-bottom: 10px;
+      background: #f9fafb;
+      border-radius: 8px;
+    }
+
+    .pet strong {
+      color: #064e3b;
+    }
+
+    .pet span {
+      display: block;
+      font-size: 13px;
+      color: #6b7280;
+    }
+
+    .actions {
+      margin-top: 8px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .actions button {
+      padding: 6px 10px;
+      font-size: 13px;
+      border-radius: 8px;
+    }
+
+    .edit {
+      background: #facc15;
+      color: #78350f;
+    }
+
+    .delete {
+      background: #fca5a5;
+      color: #7f1d1d;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="header">
+    <h1>Meus Pets</h1>
+    <a href="dashboard.html">⬅ Voltar</a>
+  </header>
+
+  <main class="container">
+
+    <!-- CADASTRO -->
+    <div class="card">
+      <h2>Cadastrar Pet</h2>
+
+      <div class="form-group">
+        <div>
+          <label>Nome do pet</label>
+          <input id="name">
+        </div>
+
+        <div>
+          <label>Idade</label>
+          <input id="age">
+        </div>
+      </div>
+
+      <div class="form-group full">
+        <div>
+          <label>Raça</label>
+          <input id="breed">
+        </div>
+      </div>
+
+      <button onclick="addPet()">Salvar Pet</button>
+    </div>
+
+    <!-- LISTA -->
+    <div class="card">
+      <h2>Pets Cadastrados</h2>
+      <div id="pets"></div>
+    </div>
+
+  </main>
+
+  <script src="js/global.js"></script>
+  <script>
+    checkAuth();
+
+    let pets = [];
+
+    async function loadPets() {
+      pets = await apiFetch("/pets");
+      render();
+    }
+
+    async function addPet() {
+      const name = nameInput.value.trim();
+      if (!name) return alert("Informe o nome do pet");
+
+      const newPet = await apiFetch("/pets", "POST", {
+        name,
+        age: ageInput.value,
+        breed: breedInput.value
+      });
+
+      if (newPet) {
+        nameInput.value = ageInput.value = breedInput.value = "";
+        loadPets();
+      }
+    }
+
+    function render() {
+      petsContainer.innerHTML = "";
+      if (!pets) return;
+      pets.forEach(p => {
+        petsContainer.innerHTML += `
+      <div class="pet">
+        <strong>${p.name}</strong>
+        <span>${p.age || "-"} anos • ${p.breed || "-"}</span>
+        <div class="actions">
+          <button class="edit">Editar</button>
+          <button class="delete" onclick="removePet(${p.id})">Excluir</button>
+        </div>
+      </div>
+    `;
+      });
+    }
+
+    async function removePet(id) {
+      if (!confirm("Deseja excluir este pet?")) return;
+      await apiFetch(`/pets/${id}`, "DELETE");
+      loadPets();
+    }
+
+    const nameInput = document.getElementById("name");
+    const ageInput = document.getElementById("age");
+    const breedInput = document.getElementById("breed");
+    const petsContainer = document.getElementById("pets");
+
+    loadPets();
+  </script>
+
+</body>
+
+</html>

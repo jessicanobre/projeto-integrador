@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <title>PetCare+ | Histórico Médico</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: linear-gradient(135deg, #e0f2fe, #f0fdf4);
+      min-height: 100vh;
+    }
+
+    /* HEADER */
+    .header {
+      background: white;
+      height: 70px;
+      padding: 0 25px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .header h1 {
+      font-size: 20px;
+      color: #0f766e;
+      margin: 0;
+    }
+
+    .header a {
+      text-decoration: none;
+      color: #0f766e;
+      font-weight: 600;
+    }
+
+    /* CONTAINER */
+    .container {
+      max-width: 900px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 25px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    }
+
+    .card h2 {
+      margin-top: 0;
+      color: #065f46;
+      font-size: 18px;
+      margin-bottom: 15px;
+    }
+
+    /* FORM */
+    .form-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    .form-group.full {
+      grid-template-columns: 1fr;
+    }
+
+    label {
+      font-size: 14px;
+      color: #374151;
+      margin-bottom: 5px;
+      display: block;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #d1d5db;
+      font-size: 14px;
+    }
+
+    textarea {
+      resize: none;
+      height: 80px;
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      background: #0f766e;
+      color: white;
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #115e59;
+    }
+
+    /* LISTA */
+    .item {
+      border-left: 4px solid #0f766e;
+      padding: 10px 15px;
+      margin-bottom: 10px;
+      background: #f9fafb;
+      border-radius: 8px;
+    }
+
+    .item strong {
+      color: #064e3b;
+    }
+
+    .item span {
+      display: block;
+      font-size: 13px;
+      color: #6b7280;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="header">
+    <h1>Histórico Médico</h1>
+    <a href="dashboard.html">⬅ Voltar</a>
+  </header>
+
+  <main class="container">
+
+    <!-- FORMULÁRIO -->
+    <div class="card">
+      <h2>Adicionar Registro</h2>
+
+      <div class="form-group">
+        <div>
+          <label>Pet</label>
+          <select id="petSelect"></select>
+        </div>
+        <div>
+          <label>Tipo</label>
+          <select id="type">
+            <option>Consulta</option>
+            <option>Exame</option>
+            <option>Tratamento</option>
+            <option>Observação</option>
+          </select>
+        </div>
+
+        <div>
+          <label>Data</label>
+          <input type="date" id="date">
+        </div>
+      </div>
+
+      <div class="form-group full">
+        <div>
+          <label>Descrição</label>
+          <textarea id="description"
+            placeholder="Ex: Consulta de rotina, exame de sangue, tratamento para alergia..."></textarea>
+        </div>
+      </div>
+
+      <button onclick="addRecord()">Salvar no Histórico</button>
+    </div>
+
+    <div id="recordsContainer">
+      <!-- CONSULTAS -->
+      <div class="card">
+        <h2>Consultas</h2>
+        <div id="consultas-list"></div>
+      </div>
+
+      <!-- EXAMES -->
+      <div class="card">
+        <h2>Exames</h2>
+        <div id="exames-list"></div>
+      </div>
+
+      <!-- TRATAMENTOS -->
+      <div class="card">
+        <h2>Tratamentos</h2>
+        <div id="tratamentos-list"></div>
+      </div>
+
+      <!-- OBSERVAÇÕES -->
+      <div class="card">
+        <h2>Observações</h2>
+        <div id="observacoes-list"></div>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="js/global.js"></script>
+  <script>
+    checkAuth();
+
+    let pets = [];
+    let records = [];
+
+    const petSelect = document.getElementById("petSelect");
+    const typeInput = document.getElementById("type");
+    const dateInput = document.getElementById("date");
+    const descriptionInput = document.getElementById("description");
+
+    const lists = {
+      "Consulta": document.getElementById("consultas-list"),
+      "Exame": document.getElementById("exames-list"),
+      "Tratamento": document.getElementById("tratamentos-list"),
+      "Observação": document.getElementById("observacoes-list")
+    };
+
+    async function loadData() {
+      pets = await apiFetch("/pets");
+      records = await apiFetch("/medical-records");
+
+      petSelect.innerHTML = '<option value="">Selecione um pet</option>';
+      pets.forEach(p => {
+        petSelect.innerHTML += `<option value="${p.id}">${p.name}</option>`;
+      });
+
+      render();
+    }
+
+    async function addRecord() {
+      if (!petSelect.value || !dateInput.value || !descriptionInput.value) {
+        alert("Preencha todos os campos");
+        return;
+      }
+
+      const newRec = await apiFetch("/medical-records", "POST", {
+        pet_id: parseInt(petSelect.value),
+        type: typeInput.value,
+        date: dateInput.value,
+        description: descriptionInput.value
+      });
+
+      if (newRec) {
+        descriptionInput.value = "";
+        loadData();
+      }
+    }
+
+    function render() {
+      Object.values(lists).forEach(l => l.innerHTML = "");
+
+      if (!records) return;
+
+      records.forEach(r => {
+        const pet = pets.find(p => p.id == r.pet_id);
+        const list = lists[r.type];
+        if (list) {
+          list.innerHTML += `
+                    <div class="item">
+                        <strong>${r.description}</strong>
+                        <span>Pet: ${pet ? pet.name : 'Unknown'} • Data: ${r.date}</span>
+                    </div>
+                `;
+        }
+      });
+
+      Object.keys(lists).forEach(k => {
+        if (lists[k].innerHTML === "") {
+          lists[k].innerHTML = "<p>Nenhum registro encontrado.</p>";
+        }
+      });
+    }
+
+    loadData();
+  </script>
+</body>
+
+</html>

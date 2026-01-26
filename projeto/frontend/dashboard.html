@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <title>PetCare+ | Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Fonte -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: #f1f5f9;
+      color: #334155;
+    }
+
+    /* HEADER */
+    header {
+      background: #1e293b;
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    header h1 {
+      margin: 0;
+      color: #f8fafc;
+      font-size: 1.4rem;
+      font-weight: 600;
+    }
+
+    header a {
+      text-decoration: none;
+      background: #ef4444;
+      color: white;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      transition: background 0.2s;
+    }
+
+    header a:hover {
+      background: #dc2626;
+    }
+
+    /* CONTAINER */
+    .container {
+      max-width: 1200px;
+      margin: auto;
+      padding: 40px;
+    }
+
+    /* WELCOME */
+    .welcome {
+      background: white;
+      border-radius: 14px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      margin-bottom: 35px;
+      border-left: 6px solid #2563eb;
+    }
+
+    .welcome h2 {
+      margin: 0 0 8px;
+      font-size: 1.6rem;
+      font-weight: 600;
+    }
+
+    .welcome p {
+      margin: 0;
+      color: #64748b;
+    }
+
+    /* GRID */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 25px;
+    }
+
+    /* CARD */
+    .card {
+      background: white;
+      border-radius: 14px;
+      padding: 28px;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.2s, box-shadow 0.2s;
+      border: 1px solid #e5e7eb;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
+    }
+
+    .card span {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #2563eb;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .card h3 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    .card p {
+      margin: 0;
+      color: #64748b;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <h1>PetCare+</h1>
+    <a href="#" onclick="logout()">Sair</a>
+  </header>
+
+  <div class="container">
+
+    <div class="welcome">
+      <h2>Dashboard</h2>
+      <p>Gerencie todas as informações de saúde e cuidados do seu pet.</p>
+    </div>
+
+    <div class="grid">
+
+      <a href="pets.html" class="card">
+        <span>Pets</span>
+        <h3>Meus Pets</h3>
+        <p>Cadastro e gerenciamento dos seus animais.</p>
+      </a>
+
+      <a href="vaccines.html" class="card">
+        <span>Saúde</span>
+        <h3>Vacinação</h3>
+        <p>Controle de vacinas e histórico imunológico.</p>
+      </a>
+
+      <a href="historico.html" class="card">
+        <span>Clínico</span>
+        <h3>Histórico Médico</h3>
+        <p>Consultas, exames e tratamentos realizados.</p>
+      </a>
+
+      <a href="agenda.html" class="card">
+        <span>Agenda</span>
+        <h3>Lembretes</h3>
+        <p>Vacinas, medicamentos, banho e tosa.</p>
+      </a>
+
+    </div>
+
+  </div>
+
+  <script src="js/global.js"></script>
+  <script>
+    checkAuth();
+  </script>
+
+</body>
+
+</html>
