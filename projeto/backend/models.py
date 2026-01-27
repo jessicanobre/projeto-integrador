@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Date, Time
+from sqlalchemy import Column, Integer, String, ForeignKey, Date, Time, Text
 from sqlalchemy.orm import relationship
 from .database import Base
 
@@ -20,6 +20,7 @@ class Pet(Base):
     age = Column(String, nullable=True)
     breed = Column(String, nullable=True)
     owner_id = Column(Integer, ForeignKey("users.id"))
+    photo_base64 = Column(Text, nullable=True)
 
     owner = relationship("User", back_populates="pets")
     vaccines = relationship("Vaccine", back_populates="pet")

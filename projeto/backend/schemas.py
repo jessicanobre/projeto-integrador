@@ -28,9 +28,16 @@ class PetBase(BaseModel):
     name: str
     age: Optional[str] = None
     breed: Optional[str] = None
+    photo_base64: Optional[str] = None
 
 class PetCreate(PetBase):
     pass
+
+class PetUpdate(BaseModel):
+    name: Optional[str] = None
+    age: Optional[str] = None
+    breed: Optional[str] = None
+    photo_base64: Optional[str] = None
 
 class Pet(PetBase):
     id: int
@@ -49,6 +56,12 @@ class VaccineBase(BaseModel):
 class VaccineCreate(VaccineBase):
     pass
 
+class VaccineUpdate(BaseModel):
+    name: Optional[str] = None
+    date: Optional[str] = None
+    time: Optional[str] = None
+    pet_id: Optional[int] = None
+
 class Vaccine(VaccineBase):
     id: int
 
@@ -66,6 +79,13 @@ class AppointmentBase(BaseModel):
 class AppointmentCreate(AppointmentBase):
     pass
 
+class AppointmentUpdate(BaseModel):
+    type: Optional[str] = None
+    date: Optional[str] = None
+    time: Optional[str] = None
+    repetition: Optional[str] = None
+    pet_id: Optional[int] = None
+
 class Appointment(AppointmentBase):
     id: int
 
@@ -81,6 +101,12 @@ class MedicalRecordBase(BaseModel):
 
 class MedicalRecordCreate(MedicalRecordBase):
     pass
+
+class MedicalRecordUpdate(BaseModel):
+    type: Optional[str] = None
+    date: Optional[str] = None
+    description: Optional[str] = None
+    pet_id: Optional[int] = None
 
 class MedicalRecord(MedicalRecordBase):
     id: int

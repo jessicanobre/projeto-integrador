@@ -131,8 +131,17 @@
 <body>
 
   <header class="header">
-    <h1>Histórico Médico</h1>
-    <a href="dashboard.html">⬅ Voltar</a>
+    <div style="display:flex;align-items:center;gap:20px">
+      <h1>Histórico Médico</h1>
+      <nav>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="pets.html">Meus Pets</a>
+        <a href="vaccines.html">Vacinas</a>
+        <a href="historico.html">Histórico</a>
+        <a href="agenda.html">Agenda</a>
+      </nav>
+    </div>
+    <a href="#" onclick="logout()">Sair</a>
   </header>
 
   <main class="container">
@@ -234,7 +243,7 @@
 
     async function addRecord() {
       if (!petSelect.value || !dateInput.value || !descriptionInput.value) {
-        alert("Preencha todos os campos");
+        showToast("Preencha todos os campos", 'warn');
         return;
       }
 
@@ -247,6 +256,7 @@
 
       if (newRec) {
         descriptionInput.value = "";
+        showToast('Registro adicionado', 'success');
         loadData();
       }
     }

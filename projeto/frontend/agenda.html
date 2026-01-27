@@ -137,8 +137,17 @@
 <body>
 
   <header class="header">
-    <h1>Agenda & Lembretes</h1>
-    <a href="dashboard.html">⬅ Voltar</a>
+    <div style="display:flex;align-items:center;gap:20px">
+      <h1>Agenda & Lembretes</h1>
+      <nav>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="pets.html">Meus Pets</a>
+        <a href="vaccines.html">Vacinas</a>
+        <a href="historico.html">Histórico</a>
+        <a href="agenda.html">Agenda</a>
+      </nav>
+    </div>
+    <a href="#" onclick="logout()">Sair</a>
   </header>
 
   <main class="container">
@@ -212,7 +221,16 @@
 
     async function loadData() {
       pets = await apiFetch("/pets");
-      appointments = await apiFetch("/appointments");
+
+      // fetch calendar events for next 30 days
+      const today = new Date();
+      const start = today.toISOString().slice(0, 10);
+      const endDate = new Date();
+      endDate.setDate(today.getDate() + 30);
+      const end = endDate.toISOString().slice(0, 10);
+
+      const res = await apiFetch(`/calendar?start=${start}&end=${end}`);
+      appointments = res && res.events ? res.events : [];
 
       petSelect.innerHTML = '<option value="">Selecione um pet</option>';
       pets.forEach(p => {
@@ -224,7 +242,7 @@
 
     async function addAppointment() {
       if (!petSelect.value || !dateInput.value || !timeInput.value) {
-        alert("Preencha os campos obrigatórios");
+        showToast("Preencha os campos obrigatórios", 'warn');
         return;
       }
 
@@ -238,6 +256,7 @@
 
       if (newApp) {
         dateInput.value = timeInput.value = "";
+        showToast('Lembrete criado', 'success');
         loadData();
       }
     }
