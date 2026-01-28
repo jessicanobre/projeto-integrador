@@ -9,8 +9,8 @@ import uuid
 
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import text
-from . import models, schemas, auth, database
-from .database import engine, get_db
+import models, schemas, auth, database
+from database import engine, get_db
 
 models.Base.metadata.create_all(bind=engine)
 

@@ -5,7 +5,7 @@ from passlib.context import CryptContext
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
-from . import models, database
+import models, database
 
 # Contrasenha hashing
 pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
