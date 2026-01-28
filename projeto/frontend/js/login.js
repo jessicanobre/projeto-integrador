@@ -21,10 +21,10 @@ loginForm.addEventListener("submit", async (e) => {
             localStorage.setItem("token", data.access_token);
             window.location.href = "dashboard.html";
         } else {
-            alert(data.detail || "Erro ao fazer login");
+            showToast(data.detail || "Erro ao fazer login", 'error');
         }
     } catch (error) {
         console.error("Erro:", error);
-        alert("Erro ao conectar com o servidor");
+        showToast("Erro ao conectar com o servidor", 'error');
     }
 });

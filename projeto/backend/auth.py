@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from . import models, database
 
 # Contrasenha hashing
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
 # JWT configuration
 SECRET_KEY = "sua_chave_secreta_super_segura"

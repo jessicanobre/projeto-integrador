@@ -137,8 +137,17 @@
 <body>
 
   <header class="header">
-    <h1>Vacinas</h1>
-    <a href="dashboard.html">⬅ Voltar</a>
+    <div style="display:flex;align-items:center;gap:20px">
+      <h1>Vacinas</h1>
+      <nav>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="pets.html">Meus Pets</a>
+        <a href="vaccines.html">Vacinas</a>
+        <a href="historico.html">Histórico</a>
+        <a href="agenda.html">Agenda</a>
+      </nav>
+    </div>
+    <a href="#" onclick="logout()">Sair</a>
   </header>
 
   <main class="container">
@@ -210,10 +219,9 @@
 
     async function addVaccine() {
       if (!petSelect.value || !nameInput.value || !dateInput.value || !timeInput.value) {
-        alert("Preencha todos os campos");
+        showToast("Preencha todos os campos", 'warn');
         return;
       }
-
       const newVaccine = await apiFetch("/vaccines", "POST", {
         pet_id: parseInt(petSelect.value),
         name: nameInput.value,
@@ -223,6 +231,7 @@
 
       if (newVaccine) {
         nameInput.value = dateInput.value = timeInput.value = "";
+        showToast('Vacina registrada', 'success');
         loadData();
       }
     }
@@ -247,6 +256,7 @@
     async function removeVaccine(id) {
       if (!confirm("Excluir esta vacina?")) return;
       await apiFetch(`/vaccines/${id}`, "DELETE");
+      showToast('Vacina excluída', 'success');
       loadData();
     }
 

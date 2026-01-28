@@ -19,13 +19,13 @@ registerForm.addEventListener("submit", async (e) => {
         const data = await response.json();
 
         if (response.ok) {
-            alert("Conta criada com sucesso!");
+            showToast("Conta criada com sucesso!", 'success');
             window.location.href = "login.html";
         } else {
-            alert(data.detail || "Erro ao criar conta");
+            showToast(data.detail || "Erro ao criar conta", 'error');
         }
     } catch (error) {
         console.error("Erro:", error);
-        alert("Erro ao conectar com o servidor");
+        showToast("Erro ao conectar com o servidor", 'error');
     }
 });

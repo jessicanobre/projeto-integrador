@@ -147,8 +147,17 @@
 <body>
 
   <header class="header">
-    <h1>Meus Pets</h1>
-    <a href="dashboard.html">⬅ Voltar</a>
+    <div style="display:flex;align-items:center;gap:20px">
+      <h1>Meus Pets</h1>
+      <nav>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="pets.html">Meus Pets</a>
+        <a href="vaccines.html">Vacinas</a>
+        <a href="historico.html">Histórico</a>
+        <a href="agenda.html">Agenda</a>
+      </nav>
+    </div>
+    <a href="#" onclick="logout()">Sair</a>
   </header>
 
   <main class="container">
@@ -174,6 +183,10 @@
           <label>Raça</label>
           <input id="breed">
         </div>
+        <div>
+          <label>Foto do pet</label>
+          <input id="photo" type="file" accept="image/*">
+        </div>
       </div>
 
       <button onclick="addPet()">Salvar Pet</button>
@@ -198,18 +211,44 @@
       render();
     }
 
+    async function fileToBase64(file){
+      return new Promise((resolve, reject)=>{
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
     async function addPet() {
       const name = nameInput.value.trim();
-      if (!name) return alert("Informe o nome do pet");
+      if (!name) return showToast("Informe o nome do pet", 'warn');
 
-      const newPet = await apiFetch("/pets", "POST", {
+      let photoData = null;
+      const file = document.getElementById('photo').files[0];
+      if (file) {
+        try {
+          photoData = await fileToBase64(file);
+        } catch (e) {
+          console.error(e);
+          showToast('Erro ao ler a foto', 'error');
+          return;
+        }
+      }
+
+      const payload = {
         name,
         age: ageInput.value,
         breed: breedInput.value
-      });
+      };
+      if (photoData) payload.photo_base64 = photoData;
+
+      const newPet = await apiFetch("/pets", "POST", payload);
 
       if (newPet) {
         nameInput.value = ageInput.value = breedInput.value = "";
+        document.getElementById('photo').value = '';
+        showToast('Pet cadastrado', 'success');
         loadPets();
       }
     }
@@ -220,8 +259,13 @@
       pets.forEach(p => {
         petsContainer.innerHTML += `
       <div class="pet">
-        <strong>${p.name}</strong>
-        <span>${p.age || "-"} anos • ${p.breed || "-"}</span>
+        <div style="display:flex;align-items:center;gap:12px">
+          ${p.photo_base64 ? `<img src="${p.photo_base64}" style="width:66px;height:66px;border-radius:10px;object-fit:cover">` : ''}
+          <div>
+            <strong>${p.name}</strong>
+            <span>${p.age || "-"} anos • ${p.breed || "-"}</span>
+          </div>
+        </div>
         <div class="actions">
           <button class="edit">Editar</button>
           <button class="delete" onclick="removePet(${p.id})">Excluir</button>
@@ -234,6 +278,7 @@
     async function removePet(id) {
       if (!confirm("Deseja excluir este pet?")) return;
       await apiFetch(`/pets/${id}`, "DELETE");
+      showToast('Pet excluído', 'success');
       loadPets();
     }
 
