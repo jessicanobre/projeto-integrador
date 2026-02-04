@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 import shutil
 import os
 import uuid
+from contextlib import asynccontextmanager
 
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import text
@@ -14,7 +15,20 @@ from database import engine, get_db
 
 models.Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="PetCare+ API")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    try:
+        with engine.begin() as conn:
+            result = conn.execute(text("PRAGMA table_info('pets')"))
+            cols = [row[1] for row in result.fetchall()]
+            if 'photo_base64' not in cols:
+                conn.execute(text("ALTER TABLE pets ADD COLUMN photo_base64 TEXT"))
+    except Exception:
+        pass
+    yield
+
+app = FastAPI(title="PetCare+ API", lifespan=lifespan)
 
 # Criar pasta de uploads se não existir
 if not os.path.exists("uploads"):
@@ -38,19 +52,7 @@ app.add_middleware(
 )
 
 
-# Ensure DB schema compatibility on startup (add photo_base64 column if missing)
-@app.on_event("startup")
-def ensure_db_columns():
-    try:
-        with engine.begin() as conn:
-            # get columns for pets
-            result = conn.execute(text("PRAGMA table_info('pets')"))
-            cols = [row[1] for row in result.fetchall()]
-            if 'photo_base64' not in cols:
-                conn.execute(text("ALTER TABLE pets ADD COLUMN photo_base64 TEXT"))
-    except Exception:
-        # don't crash startup on migration issues; log is available in server output
-        pass
+# (startup logic moved to lifespan handler)
 
 # Auth
 @app.post("/register", response_model=schemas.User)

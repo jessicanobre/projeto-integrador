@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, ConfigDict
 from typing import List, Optional
 
 # User
@@ -12,8 +12,7 @@ class User(UserBase):
     id: int
     profile_photo: Optional[str] = None
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 # Token
 class Token(BaseModel):
@@ -43,8 +42,7 @@ class Pet(PetBase):
     id: int
     owner_id: int
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 # Vaccine
 class VaccineBase(BaseModel):
@@ -65,8 +63,7 @@ class VaccineUpdate(BaseModel):
 class Vaccine(VaccineBase):
     id: int
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 # Appointment
 class AppointmentBase(BaseModel):
@@ -89,8 +86,7 @@ class AppointmentUpdate(BaseModel):
 class Appointment(AppointmentBase):
     id: int
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 # MedicalRecord
 class MedicalRecordBase(BaseModel):
@@ -111,5 +107,4 @@ class MedicalRecordUpdate(BaseModel):
 class MedicalRecord(MedicalRecordBase):
     id: int
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
