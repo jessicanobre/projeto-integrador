@@ -67,13 +67,15 @@ def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
     db.refresh(new_user)
     return new_user
 
-@app.post("/login", response_model=schemas.Token)
+@app.post("/login", response_model=schemas.TokenWithUser)
 def login(user_data: schemas.UserCreate, db: Session = Depends(get_db)):
-    user = db.query(models.User).filter(models.User.email == user_data.email).first()
-    if not user or not auth.verify_password(user_data.password, user.hashed_password):
+    # autentica usuário
+    user = auth.authenticate_user(db, user_data.email, user_data.password)
+    if not user:
         raise HTTPException(status_code=401, detail="Email ou senha incorretos")
     access_token = auth.create_access_token(data={"sub": user.email})
-    return {"access_token": access_token, "token_type": "bearer"}
+    # retornar token e dados do usuário para o frontend
+    return {"access_token": access_token, "token_type": "bearer", "user": user}
 
 # Pets
 @app.post("/pets", response_model=schemas.Pet)
