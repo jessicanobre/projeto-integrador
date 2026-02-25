@@ -1,9 +1,12 @@
-from pydantic import BaseModel, EmailStr, ConfigDict
+from pydantic import BaseModel, ConfigDict
 from typing import List, Optional
 
 # User
 class UserBase(BaseModel):
-    email: EmailStr
+    # Usamos `str` em vez de `EmailStr` temporariamente para evitar
+    # incompatibilidades entre diferentes versões do `email-validator`.
+    # Recomenda-se restaurar para `EmailStr` e ajustar dependências.
+    email: str
 
 class UserCreate(UserBase):
     password: str
