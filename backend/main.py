@@ -40,13 +40,8 @@ app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 # CORS: allow frontend served from localhost:5500 (and common dev origins)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5500",
-        "http://127.0.0.1:5500",
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-    ],
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -55,6 +50,10 @@ app.add_middleware(
 # (startup logic moved to lifespan handler)
 
 # Auth
+@app.options("/register")
+def options_register():
+    return {"message": "OK"}
+
 @app.post("/register", response_model=schemas.User)
 def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
     db_user = db.query(models.User).filter(models.User.email == user.email).first()
@@ -76,6 +75,10 @@ def login(user_data: schemas.UserCreate, db: Session = Depends(get_db)):
     access_token = auth.create_access_token(data={"sub": user.email})
     # retornar token e dados do usuário para o frontend
     return {"access_token": access_token, "token_type": "bearer", "user": user}
+
+@app.options("/login")
+def options_login():
+    return {"message": "OK"}
 
 # Pets
 @app.post("/pets", response_model=schemas.Pet)

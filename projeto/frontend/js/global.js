@@ -1,5 +1,5 @@
 // backend base URL (ajuste a porta se necessário)
-const API_URL = "http://127.0.0.1:8003";
+const API_URL = "http://localhost:8003";
 
 function checkAuth() {
     const token = localStorage.getItem("token");
