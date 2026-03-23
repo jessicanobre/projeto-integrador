@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cadastro - PetCare+</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f5f7fb;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.container {
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 12px;
+  width: 320px;
+  text-align: center;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+h2 {
+  margin-bottom: 20px;
+  color: #1e293b;
+}
+
+/* INPUTS */
+input {
+  width: 100%;
+  padding: 11px;
+  margin: 8px 0;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  outline: none;
+  font-size: 14px;
+}
+
+input:focus {
+  border-color: #2563eb;
+}
+
+/* BOTÃO */
+button {
+  width: 100%;
+  padding: 11px;
+  margin-top: 10px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+button:hover {
+  background: #1d4ed8;
+}
+
+/* LINKS */
+.links {
+  margin-top: 15px;
+}
+
+.links a {
+  text-decoration: none;
+  color: #2563eb;
+  font-size: 14px;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+  <h2>🐾 Criar Conta</h2>
+
+  <input id="name" placeholder="Nome">
+  <input id="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Senha">
+
+  <button onclick="register()">Cadastrar</button>
+
+  <div class="links">
+    <a href="login.html">Já tem conta? Entrar</a>
+  </div>
+</div>
+
+<script>
+function register() {
+  // apenas redireciona (sem backend)
+  window.location.href = "dashboard.html";
+}
+</script>
+
+</body>
+</html>

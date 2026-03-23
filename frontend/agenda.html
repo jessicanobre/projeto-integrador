@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Agenda - PetCare+</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f5f7fb;
+}
+
+/* NAVBAR */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px 40px;
+  background: #fff;
+  border-bottom: 1px solid #ddd;
+}
+
+button {
+  padding: 8px 12px;
+  border: none;
+  background: #2563eb;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* CONTAINER */
+.container {
+  padding: 30px 40px;
+}
+
+/* FORM */
+.form {
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  margin-bottom: 20px;
+}
+
+input, select {
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+}
+
+/* LISTA */
+.card {
+  background: #fff;
+  padding: 15px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  margin-bottom: 10px;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="navbar">
+  <strong>📅 Agenda</strong>
+  <button onclick="back()">Voltar</button>
+</div>
+
+<div class="container">
+
+  <!-- FORM -->
+  <div class="form">
+    <h3>Novo Compromisso</h3>
+
+    <select id="pet"></select>
+
+    <input type="date" id="data">
+    <input id="descricao" placeholder="Descrição (consulta, vacina...)">
+
+    <button onclick="addAgenda()">Salvar</button>
+  </div>
+
+  <!-- LISTA -->
+  <div id="lista"></div>
+
+</div>
+
+<script>
+// pega pets cadastrados
+let pets = JSON.parse(localStorage.getItem("pets")) || []
+let agenda = JSON.parse(localStorage.getItem("agenda")) || []
+
+function carregarPets() {
+  const select = document.getElementById("pet")
+  select.innerHTML = "<option value=''>Selecione o pet</option>"
+
+  pets.forEach(p => {
+    select.innerHTML += `<option value="${p.nome}">${p.nome}</option>`
+  })
+}
+
+function addAgenda() {
+  const pet = document.getElementById("pet").value
+  const data = document.getElementById("data").value
+  const descricao = document.getElementById("descricao").value
+
+  if (!pet || !data || !descricao) {
+    alert("Preencha todos os campos")
+    return
+  }
+
+  agenda.push({ pet, data, descricao })
+
+  localStorage.setItem("agenda", JSON.stringify(agenda))
+
+  document.getElementById("pet").value = ""
+  document.getElementById("data").value = ""
+  document.getElementById("descricao").value = ""
+
+  renderAgenda()
+}
+
+function renderAgenda() {
+  const lista = document.getElementById("lista")
+  lista.innerHTML = ""
+
+  agenda.forEach((item, index) => {
+    lista.innerHTML += `
+      <div class="card">
+        <strong>${item.pet}</strong><br>
+        Data: ${item.data} <br>
+        ${item.descricao} <br><br>
+
+        <button onclick="deleteAgenda(${index})" style="background:#ef4444">
+          Excluir
+        </button>
+      </div>
+    `
+  })
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Pets - PetCare+</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f5f7fb;
+}
+
+/* NAVBAR */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px 40px;
+  background: #fff;
+  border-bottom: 1px solid #ddd;
+}
+
+button {
+  padding: 8px 12px;
+  border: none;
+  background: #2563eb;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* CONTAINER */
+.container {
+  padding: 30px 40px;
+}
+
+/* FORM */
+.form {
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  margin-bottom: 20px;
+}
+
+input, select {
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+}
+
+/* LISTA */
+.card {
+  background: #fff;
+  padding: 15px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  margin-bottom: 10px;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="navbar">
+  <strong>🐾 Pets</strong>
+  <button onclick="back()">Voltar</button>
+</div>
+
+<div class="container">
+
+  <!-- FORM -->
+  <div class="form">
+    <h3>Adicionar Pet</h3>
+
+    <input id="nome" placeholder="Nome do pet">
+    <input id="idade" placeholder="Idade">
+    <input id="raca" placeholder="Raça">
+
+    <select id="tipo">
+      <option value="">Selecione o tipo</option>
+      <option value="Cachorro">Cachorro</option>
+      <option value="Gato">Gato</option>
+    </select>
+
+    <button onclick="addPet()">Adicionar Pet</button>
+  </div>
+
+  <!-- LISTA -->
+  <div id="lista"></div>
+
+</div>
+
+<script>
+let pets = JSON.parse(localStorage.getItem("pets")) || []
+
+function addPet() {
+  const nome = document.getElementById("nome").value
+  const idade = document.getElementById("idade").value
+  const raca = document.getElementById("raca").value
+  const tipo = document.getElementById("tipo").value
+
+  if (!nome || !idade || !raca || !tipo) {
+    alert("Preencha todos os campos")
+    return
+  }
+
+  pets.push({ nome, idade, raca, tipo })
+
+  // salva no navegador
+  localStorage.setItem("pets", JSON.stringify(pets))
+
+  // limpa campos
+  document.getElementById("nome").value = ""
+  document.getElementById("idade").value = ""
+  document.getElementById("raca").value = ""
+  document.getElementById("tipo").value = ""
+
+  renderPets()
+}
+
+function renderPets() {
+  const lista = document.getElementById("lista")
+  lista.innerHTML = ""
+
+  pets.forEach((pet, index) => {
+    lista.innerHTML += `
+      <div class="card">
+        <strong>${pet.nome}</strong><br>
+        Idade: ${pet.idade} <br>
+        Raça: ${pet.raca} <br>
+        Tipo: ${pet.tipo} <br><br>
+
+        <button onclick="deletePet(${index})" style="background:#ef4444">
+          Excluir
+        </button>
+      </div>
+    `
+  })
+}
+
+function back() {
+  window.location.href = "dashboard.html"
+}
+
+// carregar ao abrir
+function deletePet(index) {
+
+// remove pet
+const petRemovido = pets[index].nome
+pets.splice(index, 1)
+
+// salva pets atualizados
+localStorage.setItem("pets", JSON.stringify(pets))
+
+// remove da agenda também
+let agenda = JSON.parse(localStorage.getItem("agenda")) || []
+agenda = agenda.filter(a => a.pet !== petRemovido)
+
+localStorage.setItem("agenda", JSON.stringify(agenda))
+
+renderPets()
+}
+renderPets()
+</script>
+</body>
+</html>
